@@ -93,6 +93,8 @@ test_EXTERNAL_OBJECTS =
 test/test: test/CMakeFiles/test.dir/icmp_test.cc.o
 test/test: test/CMakeFiles/test.dir/build.make
 test/test: src/libping_project.so
+test/test: lib/libgtest_main.a
+test/test: lib/libgtest.a
 test/test: test/CMakeFiles/test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/douglas.pinheiro.lds/projetos/ping_proj/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable test"
 	cd /home/douglas.pinheiro.lds/projetos/ping_proj/build/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test.dir/link.txt --verbose=$(VERBOSE)

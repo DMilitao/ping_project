@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/douglas.pinheiro.lds/projetos/ping_proj/include -I/home/douglas.pinheiro.lds/projetos/ping_proj
+CXX_INCLUDES = -I/home/douglas.pinheiro.lds/projetos/ping_proj/include -I/home/douglas.pinheiro.lds/projetos/ping_proj -isystem /home/douglas.pinheiro.lds/projetos/ping_proj/build/_deps/googletest-src/googletest/include -isystem /home/douglas.pinheiro.lds/projetos/ping_proj/build/_deps/googletest-src/googletest
 
-CXX_FLAGS = -std=gnu++11
+CXX_FLAGS = -std=gnu++14
 

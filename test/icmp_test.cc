@@ -12,15 +12,15 @@ public:
 
     }
 
-private:
+protected:
     icmp expect_icmp_;
 
 };
 
 
 TEST_F(IcmpTest, TestOne){
-    cout << "Estou aqui" ;
+    std::cout << "Estou aqui\n" ;
     icmp new_icmp = expect_icmp_;
     
-    EXPECT_FALSE(icmp.teste());
+    EXPECT_TRUE(new_icmp.teste());
 }
