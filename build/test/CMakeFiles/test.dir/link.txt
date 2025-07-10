@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/test.dir/icmp_test.cc.o -o test  -Wl,-rpath,/home/douglas.pinheiro.lds/projetos/ping_proj/build/src ../src/libping_project.so ../lib/libgtest_main.a ../lib/libgtest.a 
