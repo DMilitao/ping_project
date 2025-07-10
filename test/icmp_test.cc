@@ -19,7 +19,7 @@ protected:
 
 
 TEST_F(IcmpTest, TestOne){
-    std::cout << "Estou aqui nessa linha\n" ;
+    std::cout << "Estou aqui nessa\n" ;
     icmp new_icmp = expect_icmp_;
     
     EXPECT_TRUE(new_icmp.teste());
