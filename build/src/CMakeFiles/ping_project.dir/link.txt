@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -shared -Wl,-soname,libping_project.so -o libping_project.so CMakeFiles/ping_project.dir/icmp.cc.o 
