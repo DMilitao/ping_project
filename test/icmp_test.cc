@@ -1,7 +1,5 @@
 #include "include/icmp.h"
 
-#include <iostream>
-
 #include <gtest/gtest.h>
 
 class IcmpTest : public ::testing::Test

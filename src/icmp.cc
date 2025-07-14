@@ -7,7 +7,6 @@
 
 #include <stdint.h>
 
-#include <iostream>
 #include <vector>
 
 bool icmp::Decode(const std::vector<uint8_t> &buffer){
@@ -37,7 +36,7 @@ bool icmp::Decode(const std::vector<uint8_t> &buffer){
 
         uint16_t sequence_number = (buffer.at(6) << 8)  + buffer.at(7);
         set_SequenceNumber(sequence_number);
-   
+
      } else if ( isTimeStamp() || isTimeStampReply() ) {
         uint16_t identifier = (buffer.at(4) << 8) + buffer.at(5);
         set_Identifier(identifier);
