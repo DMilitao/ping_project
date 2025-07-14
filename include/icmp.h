@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include <vector>
+#include <tuple>
 
 #ifndef PING_PROJECT_INCLUDE_ICMP_H_
 #define PING_PROJECT_INCLUDE_ICMP_H_
@@ -91,6 +92,20 @@ class icmp
         data_.reserve(data.size());
         std::copy(data.begin(), data.end(), std::back_inserter(data_));
      }
+
+     inline void clearCheckSum() {
+        checksum_ = 0;
+     }
+
+     inline void clearData() {
+        data_.clear();
+     }
+
+     inline bool operator==(const icmp &other) const
+     {
+        return std::tie(type_, code_, data_, pointer_, gateway_address_, identifier_, sequence_number_, originate_timestamp_, receive_timestamp_, transmit_timestamp_) ==
+            std::tie(other.type_, other.code_, other.data_, other.pointer_, other.gateway_address_, other.identifier_, other.sequence_number_, other.originate_timestamp_, other.receive_timestamp_, other.transmit_timestamp_);
+     }
     private:
      // Global
      uint8_t type_ = UINT8_MAX;
@@ -157,8 +172,9 @@ class icmp
         return Type() == 16 && Code() == 0;
      }
 
-     uint16_t createCheckSum();
-     bool verifyCheckSum();
+     uint16_t createCheckSum(std::vector<uint8_t> buffer);
+     
+     bool verifyCheckSum(std::vector<uint8_t> buffer);
 };
 
 #endif
