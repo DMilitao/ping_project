@@ -1,3 +1,8 @@
+/**
+ * \file
+ * \brief ICMP class methods
+ */
+
 #include "include/icmp.h"
 
 #include <stdint.h>
@@ -5,7 +10,7 @@
 #include <iostream>
 #include <vector>
 
-bool icmp::Decode(std::vector<uint8_t> buffer){
+bool icmp::Decode(const std::vector<uint8_t> &buffer){
     std::size_t sbuffer = buffer.size();
 
     if (sbuffer < 8 ) {
@@ -15,70 +20,62 @@ bool icmp::Decode(std::vector<uint8_t> buffer){
     if ( !verifyCheckSum(buffer) ){
       return false;
     }
-
      set_Type(buffer[0]);
      set_Code(buffer[1]);
 
      if ( isEchoRequest() || isEchoReply() || isInfoRequest() || isInfoReply() ){
 
-        uint16_t identifier = (buffer[4] << 8) + buffer[5];
+        uint16_t identifier = (buffer.at(4) << 8) + buffer.at(5);
         set_Identifier(identifier);
 
-        uint16_t sequence_number = (buffer[6] << 8)  + buffer[7];
+        uint16_t sequence_number = (buffer.at(6) << 8)  + buffer.at(7);
         set_SequenceNumber(sequence_number);
 
      } else if ( isEchoReply() ) {
-
-        uint16_t identifier = (buffer[4] << 8) + buffer[5];
+        uint16_t identifier = (buffer.at(4) << 8) + buffer.at(5);
         set_Identifier(identifier);
 
-        uint16_t sequence_number = (buffer[6] << 8)  + buffer[7];
+        uint16_t sequence_number = (buffer.at(6) << 8)  + buffer.at(7);
         set_SequenceNumber(sequence_number);
-        
+   
      } else if ( isTimeStamp() || isTimeStampReply() ) {
-
-        uint16_t identifier = (buffer[4] << 8) + buffer[5];
+        uint16_t identifier = (buffer.at(4) << 8) + buffer.at(5);
         set_Identifier(identifier);
 
-        uint16_t sequence_number = (buffer[6] << 8)  + buffer[7];
+        uint16_t sequence_number = (buffer.at(6) << 8)  + buffer.at(7);
         set_SequenceNumber(sequence_number);
 
-        uint32_t originate_timestamp = (buffer[8] << 24) + (buffer[9] << 16) + (buffer[10] << 8) + buffer[11];
+        uint32_t originate_timestamp = (buffer.at(8) << 24) + (buffer.at(9) << 16) + (buffer.at(10) << 8) + buffer.at(11);
         set_OriginateTimeStamp(originate_timestamp);
 
-        uint32_t receive_timestamp = (buffer[12] << 24) + (buffer[13] << 16) + (buffer[14] << 8) + buffer[15];
+        uint32_t receive_timestamp = (buffer.at(12) << 24) + (buffer.at(13) << 16) + (buffer.at(14) << 8) + buffer.at(15);
         set_ReceiveTimeStamp(receive_timestamp);
 
-        uint32_t transmit_timestamp = (buffer[16] << 24)+ (buffer[17] << 16) + (buffer[18] << 8) + buffer[19];
+        uint32_t transmit_timestamp = (buffer.at(16) << 24)+ (buffer.at(17) << 16) + (buffer.at(18) << 8) + buffer.at(19);
         set_TransmitTimeStamp(transmit_timestamp);
 
         return true;
+
      } else if ( isDestinationUnreach() || isSourceQuench() || isTimeExceed() ) {
 
      } else if ( isRedirectMessage() ) {
-        uint32_t gateway_address = (buffer[4] << 24)+ (buffer[5] << 16) + (buffer[6] << 8)  + buffer[7];
+        uint32_t gateway_address = (buffer.at(4) << 24)+ (buffer.at(5) << 16) + (buffer.at(6) << 8)  + buffer.at(7);
         set_GatewayAddress(gateway_address);
 
      } else if ( isParameterProblem() ) {
-        set_Pointer(buffer[4]);
+        set_Pointer(buffer.at(4));
      } else {
-      
         return false;
      }
-     
+
      std::vector<uint8_t> data(buffer.begin()+8, buffer.end());
      set_Data(data);
      return true;
 }
 
 std::vector<uint8_t> icmp::Encode(){
-    std::vector<uint8_t> msg;
-    
-    msg.push_back(type_);
-    msg.push_back(code_);
-    msg.push_back(0);
-    msg.push_back(0);
-    
+    std::vector<uint8_t> msg = {type_, code_, 0 , 0};
+
     if ( isEchoRequest() || isEchoReply() || isInfoRequest() || isInfoReply() ){
         uint8_t identifier_high = (identifier_ >> 8) & 0xFF;
         uint8_t identifier_low = (identifier_) & 0xFF;
@@ -91,7 +88,6 @@ std::vector<uint8_t> icmp::Encode(){
         msg.push_back(sequence_number_low);
 
      } else if ( isTimeStamp() ||  isTimeStampReply() ) {
-        
         uint8_t identifier_high = (identifier_ >> 8) & 0xFF;
         uint8_t identifier_low = (identifier_) & 0xFF;
         msg.push_back(identifier_high);
@@ -128,9 +124,9 @@ std::vector<uint8_t> icmp::Encode(){
         msg.push_back(transmit_timestamp_second);
         msg.push_back(transmit_timestamp_third);
         msg.push_back(transmit_timestamp_last);
-        
+
      } else if ( isDestinationUnreach() || isSourceQuench() || isTimeExceed() ) {
-        
+
      } else if ( isRedirectMessage() ) {
         uint8_t g_address_first = (gateway_address_ >> 24) & 0xFF;
         uint8_t g_address_second = (gateway_address_ >> 16) & 0xFF;
@@ -149,31 +145,31 @@ std::vector<uint8_t> icmp::Encode(){
         return msg;
      }
 
-      while ( msg.size() < 8 ) {
-         msg.push_back(0);
+      if ( msg.size() < 8 ) {
+         msg.resize(8);
       }
 
       msg.insert(msg.end(),data_.begin(),data_.end());
       clearCheckSum();
 
       uint16_t checksum = createCheckSum(msg);
-      msg[2] = (checksum >> 8) & 0xFF;
-      msg[3] = (checksum) & 0xFF;
+      msg.at(2) = (checksum >> 8) & 0xFF;
+      msg.at(3) = (checksum) & 0xFF;
 
       return msg;
 }
 
-uint16_t icmp::createCheckSum(std::vector<uint8_t> buffer){
+uint16_t icmp::createCheckSum(const std::vector<uint8_t> &buffer) const {
       std::size_t sbuffer = buffer.size();
-      if ( sbuffer % 2) {
-         buffer.push_back(0);
-      }
 
       uint32_t checksum = 0;
 
-      for (std::size_t i = 0; i < buffer.size(); i += 2) {
-         checksum += (buffer[i] << 8) + buffer[i+1];
-         
+      for (std::size_t i = 0; i < sbuffer; i += 2) {
+         uint16_t op_1 = (buffer.at(i) << 8);
+         uint16_t op_2 = i + 1 < sbuffer ? buffer.at(i+1) : 0;
+
+         checksum +=  op_1 + op_2;
+
          while ( checksum > 0xFFFF ) {
             checksum = ( checksum & 0xFFFF ) + ( ( checksum >> 16 ) & 0xFFFF );
          } 
@@ -181,6 +177,6 @@ uint16_t icmp::createCheckSum(std::vector<uint8_t> buffer){
       return ~checksum & 0xFFFF;
 };
 
-bool icmp::verifyCheckSum(std::vector<uint8_t> buffer){
+bool icmp::verifyCheckSum(const std::vector<uint8_t> &buffer) const {
       return (int)createCheckSum(buffer) == 0 ? true : false;
 }

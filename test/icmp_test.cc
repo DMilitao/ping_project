@@ -96,6 +96,8 @@ TEST_F(IcmpTest, CanDecodeMessageEchoRequest){
 
     EXPECT_TRUE(new_icmp.Decode(message));
     
+    EXPECT_TRUE(new_icmp.isEchoRequest());
+
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -111,7 +113,9 @@ TEST_F(IcmpTest, CanDecodeMessageEchoReply){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isEchoReply());
+
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -129,6 +133,8 @@ TEST_F(IcmpTest, CanDecodeMessageInfoRequest){
 
     EXPECT_TRUE(new_icmp.Decode(message));
     
+    EXPECT_TRUE(new_icmp.isInfoRequest());
+
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -146,6 +152,8 @@ TEST_F(IcmpTest, CanDecodeMessageInfoReply){
 
     EXPECT_TRUE(new_icmp.Decode(message));
     
+    EXPECT_TRUE(new_icmp.isInfoReply());
+
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -155,7 +163,7 @@ TEST_F(IcmpTest, CanDecodeMessageDestinationUnreach){
     uint8_t type = 3;
     uint8_t code = 0;
 
-    std::vector<uint8_t> data = {1,2,3,4};
+    std::vector<uint8_t> data = {1,2,3,4,5};
 
     icmp expect_icmp;
 
@@ -168,7 +176,9 @@ TEST_F(IcmpTest, CanDecodeMessageDestinationUnreach){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isDestinationUnreach());
+
     EXPECT_TRUE(new_icmp == expect_icmp);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -191,7 +201,9 @@ TEST_F(IcmpTest, CanDecodeMessageTimeExceed){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isTimeExceed());
+
     EXPECT_TRUE(new_icmp == expect_icmp);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -216,7 +228,9 @@ TEST_F(IcmpTest, CanDecodeMessageParameterProblem){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isParameterProblem());
+
     EXPECT_TRUE(new_icmp == expect_icmp);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -240,6 +254,8 @@ TEST_F(IcmpTest, CanDecodeMessageSourceQuench){
 
     EXPECT_TRUE(new_icmp.Decode(message));
     
+    EXPECT_TRUE(new_icmp.isSourceQuench());
+
     EXPECT_TRUE(new_icmp == expect_icmp);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -264,7 +280,9 @@ TEST_F(IcmpTest, CanDecodeMessageRedirectMessage){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isRedirectMessage());
+
     EXPECT_TRUE(new_icmp == expect_icmp);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -287,7 +305,9 @@ TEST_F(IcmpTest, CanDecodeMessageTimeStamp){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
-    
+
+    EXPECT_TRUE(new_icmp.isTimeStamp());
+
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
     EXPECT_EQ(new_icmp.Encode(),message);
@@ -310,6 +330,8 @@ TEST_F(IcmpTest, CanDecodeMessageTimeStampReply){
     icmp new_icmp;
 
     EXPECT_TRUE(new_icmp.Decode(message));
+
+    EXPECT_TRUE(new_icmp.isTimeStampReply());
     
     EXPECT_TRUE(new_icmp == expect_icmp_);
 
