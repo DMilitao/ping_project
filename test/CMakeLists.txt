@@ -3,6 +3,8 @@ add_executable(test)
 target_sources(test
                 PRIVATE
                 icmp_test.cc
+                echo_reply_test.cc
+                echo_request_test.cc
                 )
 
 target_link_libraries(test

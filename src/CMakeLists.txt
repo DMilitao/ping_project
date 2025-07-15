@@ -3,6 +3,8 @@ add_library(ping_project SHARED)
 target_sources(ping_project
 		       PRIVATE
 			   icmp.cc
+			   echo_reply.cc
+			   echo_request.cc
 			   )
 
 target_include_directories(ping_project
