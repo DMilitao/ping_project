@@ -5,6 +5,9 @@ target_sources(ping_project
 			   icmp.cc
 			   echo_reply.cc
 			   echo_request.cc
+			   nclient.cc
+			   nserver.cc  
+			   nsocket.cc
 			   )
 
 target_include_directories(ping_project

@@ -9,7 +9,7 @@ public:
     {
         uint8_t type = 8;
         uint8_t code = 0;
-        std::vector<uint8_t> data = {1,2,3,4};
+        std::vector<uint8_t> data = {1, 2, 3, 4};
 
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;

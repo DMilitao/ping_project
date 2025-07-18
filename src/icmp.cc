@@ -6,7 +6,7 @@
 #include "include/icmp.h"
 
 #include <stdint.h>
-#include <iostream>
+
 #include <vector>
 
 bool Icmp::Decode(const std::vector<uint8_t> &buffer){
