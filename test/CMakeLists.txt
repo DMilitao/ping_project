@@ -5,12 +5,14 @@ target_sources(test
                 icmp_test.cc
                 echo_reply_test.cc
                 echo_request_test.cc
+                nsocket_test.cc
                 )
 
 target_link_libraries(test
                       PRIVATE 
                       ping_project
                       GTest::gtest_main
+                      GTest::gmock_main
                       )
 
 target_include_directories(test

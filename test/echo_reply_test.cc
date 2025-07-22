@@ -9,7 +9,7 @@ public:
     {
         uint8_t type = 0;
         uint8_t code = 0;
-        std::vector<uint8_t> data = {1,2,3,4};
+        std::vector<uint8_t> data = {1, 2, 3, 4};
 
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
@@ -54,12 +54,14 @@ TEST_F(EchoReplyTest, CannotDecodeOtherTypeMessage){
     EXPECT_FALSE(new_echo_reply.Decode(message));
 }
 
-TEST_F(EchoReplyTest, CannotDecodeBrokenMessage){
+TEST_F(EchoReplyTest, CanIdentifyBrokenMessage){
     std::vector<uint8_t> message = expect_echo_reply_.Encode();
 
     std::vector<uint8_t> message_broken(message.begin(),message.end()-1);
 
     EchoReply new_echo_reply;
 
-    EXPECT_FALSE(new_echo_reply.Decode(message_broken));
+    EXPECT_TRUE(new_echo_reply.Decode(message_broken));
+    
+    EXPECT_FALSE(new_echo_reply.checksum() == 0);
 }

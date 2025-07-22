@@ -77,6 +77,14 @@ class Icmp
         std::copy(data.begin(), data.end(), std::back_inserter(data_));
      }
 
+     /**
+      * \brief Set message data
+      * \param data The desired message data
+      */
+     inline uint16_t checksum(){
+        return checksum_;
+     }
+
       /**
       * \brief Clear the checksum parameter
       */

@@ -15,8 +15,9 @@ bool EchoReply::Decode(const std::vector<uint8_t> &buffer){
    
    set_type(buffer[0]);
    set_code(buffer[1]);
+   verifyCheckSum(buffer);
 
-   if ( sbuffer < 8 || !verifyCheckSum(buffer) || !isEchoReply() ){
+   if ( sbuffer < 8 || !isEchoReply() ){
     clear_fields();
     return false;
    }
