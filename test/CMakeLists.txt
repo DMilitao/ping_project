@@ -5,6 +5,8 @@ target_sources(test
                 icmp_test.cc
                 echo_reply_test.cc
                 echo_request_test.cc
+                nclient_test.cc
+                nserver_test.cc
                 nsocket_test.cc
                 )
 

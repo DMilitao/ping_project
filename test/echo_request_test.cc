@@ -2,20 +2,16 @@
 
 #include <gtest/gtest.h>
 
+#include "include/echo_reply.h"
 class EchoRequestTest : public ::testing::Test
 {
 public:
     void SetUp()
     {
-        uint8_t type = 8;
-        uint8_t code = 0;
         std::vector<uint8_t> data = {1, 2, 3, 4};
-
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
 
-        expect_echo_request_.set_type(type);
-        expect_echo_request_.set_code(code);
         expect_echo_request_.set_data(data);
         expect_echo_request_.set_identifier(identifier);
         expect_echo_request_.set_sequence_number(sequence_number);
@@ -64,4 +60,18 @@ TEST_F(EchoRequestTest, CanIdentifyBrokenMessage){
     EXPECT_TRUE(new_echo_request.Decode(message_broken));
     
     EXPECT_FALSE(new_echo_request.checksum() == 0);
+}
+
+TEST_F(EchoRequestTest, CanCompareToEchoReply){
+    std::vector<uint8_t> data = {1, 2, 3, 4};
+    uint16_t identifier = 0xABCD;
+    uint16_t sequence_number = 0xCDEF;
+
+    EchoReply new_echo_reply;
+
+    new_echo_reply.set_data(data);
+    new_echo_reply.set_identifier(identifier);
+    new_echo_reply.set_sequence_number(sequence_number);
+
+    EXPECT_TRUE(expect_echo_request_ == new_echo_reply);
 }

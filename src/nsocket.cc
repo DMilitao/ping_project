@@ -4,8 +4,6 @@
  */
 #include "include/nsocket.h"
 
-#include <iostream>
-
 bool NSocket::CreateSocket(){
     if ( sock_fd_ != -1 ){
         return false;
@@ -13,7 +11,15 @@ bool NSocket::CreateSocket(){
 
     sock_fd_ = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
-    return sock_fd_ != -1 ? true : false;
+    struct timeval tv_recv;
+    tv_recv.tv_sec = 5;
+    tv_recv.tv_usec = 0;
+    if ( setsockopt(sock_fd_, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_recv, sizeof(tv_recv)) < 0 ) {
+        Close();
+        return false;
+    }
+
+    return sock_fd_ != -1;
 }
 
 bool NSocket::Close(){
@@ -27,11 +33,27 @@ bool NSocket::Close(){
     return false;
 }
 
-int NSocket::Send(const std::vector<uint8_t> &data, uint32_t ip_address){
+int NSocket::Send(const std::vector<uint8_t> &data, const std::string ip_address) const {
     if (sock_fd_ == -1) {
         return -1;
     }
-    
+
+    sockaddr_in dest_addr;
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = 0;
+
+    if ( inet_pton(AF_INET, ip_address.c_str(), &dest_addr.sin_addr) <= 0 ){
+        return -1;
+    }
+
+    return sendto(sock_fd_, data.data(), data.size(), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+}
+
+int NSocket::Send(const std::vector<uint8_t> &data, const uint32_t ip_address) const {
+    if (sock_fd_ == -1) {
+        return -1;
+    }
+
     sockaddr_in dest_addr;
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_port = 0;
@@ -40,7 +62,7 @@ int NSocket::Send(const std::vector<uint8_t> &data, uint32_t ip_address){
     return sendto(sock_fd_, data.data(), data.size(), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
 }
 
-std::vector<uint8_t> NSocket::Receive(int sbuffer){
+std::vector<uint8_t> NSocket::Receive(const int sbuffer) const {
     std::vector<uint8_t> msg(sbuffer);
 
     sockaddr_in dest_addr;
@@ -52,23 +74,28 @@ std::vector<uint8_t> NSocket::Receive(int sbuffer){
     {
        return {};
     }
-    
+
     msg.resize(read_bytes);
     return msg;
 }
 
-bool NSocket::SetIP(uint32_t ip_address){
+bool NSocket::SetIP(const std::string ip_address){
     if (sock_fd_ == -1) {
         return false;
     }
 
     address_.sin_family = AF_INET;
-    address_.sin_addr.s_addr = htonl(ip_address);
     address_.sin_port = 0;
+
+    if ( inet_pton(AF_INET, ip_address.c_str(), &address_.sin_addr) <= 0 ){
+        Close();
+        return false;
+    }
 
     if ( bind(sock_fd_, (struct sockaddr *)&address_, sizeof(address_)) == -1) {
         Close();
         return false;
     }
+
     return true;
 }

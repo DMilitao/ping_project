@@ -7,15 +7,10 @@ class EchoReplyTest : public ::testing::Test
 public:
     void SetUp()
     {
-        uint8_t type = 0;
-        uint8_t code = 0;
         std::vector<uint8_t> data = {1, 2, 3, 4};
-
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
 
-        expect_echo_reply_.set_type(type);
-        expect_echo_reply_.set_code(code);
         expect_echo_reply_.set_data(data);
         expect_echo_reply_.set_identifier(identifier);
         expect_echo_reply_.set_sequence_number(sequence_number);
@@ -23,7 +18,6 @@ public:
 
 protected:
     EchoReply expect_echo_reply_;
-
 };
 
 TEST_F(EchoReplyTest, CanEncodeMessage){

@@ -7,6 +7,7 @@
 #include <vector>
 #include <tuple>
 
+#include "echo_reply.h"
 #include "icmp.h"
 
 #ifndef PING_PROJECT_INCLUDE_ECHO_REQUEST_H_
@@ -64,10 +65,20 @@ class EchoRequest : public Icmp
 
      /**
       * \brief Compare all fields of two icmp variables
+      * \return true if parameters are equal and false otherwise
       */
      inline bool operator==(const EchoRequest &other) const
      {
         return std::make_tuple(type(), code(), identifier(), sequence_number(), data()) == std::make_tuple(other.type(), other.code(),other.identifier(),other.sequence_number(), other.data());
+     }
+
+     /**
+      * \brief Compare identifier, sequence number and data of an Echo Reply message
+      * \return true if parameters are equal and false otherwise
+      */
+     inline bool operator==(const EchoReply &other) const
+     {
+        return std::make_tuple(identifier(), sequence_number(), data()) == std::make_tuple(other.identifier(),other.sequence_number(), other.data());
      }
 
      /**
@@ -103,6 +114,7 @@ class EchoRequest {
     +sequence_number() const: uint16_t
     +set_sequence_number(uint16_t): void
     +operator==(const EchoRequest &) const: bool
+    +operator==(const EchoReply &) const: bool
     +IsEchoRequest(): bool
     +clear_fields(): void
 

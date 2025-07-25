@@ -6,13 +6,13 @@
 
 #include <cstring>
 #include <memory>
-#include <string>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #ifndef PING_PROJECT_INCLUDE_NSOCKET_H_
@@ -65,16 +65,25 @@ class NSocket
      /**
       * \brief Send a message
       * \param data The message
+      * \param ip_address the ip that should receive the message
       * \return The number of bytes sent, -1 for error
       */
-     virtual int Send(const std::vector<uint8_t> &data, uint32_t ip_address);
+     virtual int Send(const std::vector<uint8_t> &data, const std::string ip_address) const;
+
+     /**
+      * \brief Send a message
+      * \param data The message
+      * \param ip_address the ip that should receive the message
+      * \return The number of bytes sent, -1 for error
+      */
+     virtual int Send(const std::vector<uint8_t> &data, const uint32_t p_address) const;
 
      /**
       * \brief Read a message
       * \param sbuffer The expected size of the message
       * \return The received message
       */
-     virtual std::vector<uint8_t> Receive(int sbuffer);
+     virtual std::vector<uint8_t> Receive(const int sbuffer) const;
 
      /**
       * \brief Send a message
@@ -87,7 +96,7 @@ class NSocket
       * \param ip_address The desired ip address
       * \return true if successfull and false otherwise
       */
-     bool SetIP(uint32_t ip_address);
+     bool SetIP(const std::string ip_address);
 
     private:
      int sock_fd_ = -1;
@@ -105,10 +114,11 @@ class NSocket {
     +address() const: sockaddr_in
     +set_address(sockaddr_in): void
     +CreateSocket(): bool
-    +Send(const std::vector<uint8_t> &): int
-    +Receive(int): std::vector<uint8_t>
+    +Send(const std::vector<uint8_t> &, const std::string) const: int
+    +Send(const std::vector<uint8_t> &, const uint32_t) const: int
+    +Receive(const int) const: std::vector<uint8_t>
     +Close(): bool
-    +SetIP(uint32_t): bool
+    +SetIP(const std::string): bool
 
     -sock_fd_: int
     -address_: sockaddr_in 
