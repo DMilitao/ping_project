@@ -71,7 +71,7 @@ class NClient
       * \param ip_address The desired ip to achieve
       * \return the log of the process
       */
-     std::string Ping(const std::string ip_address) const;
+     virtual std::string Ping(const std::string ip_address, const uint16_t sequence_number) const;
 
     private:
      NSocket socket_;
@@ -88,7 +88,7 @@ class NClient {
     +Close(): bool
     +Send(const std::vector<uint8_t> &, const std::string) const: int
     +WaitingMessage(const int) const: bool
-    +Ping(const std::string) const: std::string
+    +Ping(const std::string, const uint16_t) const: std::string
 
     -socket_: NSocket
 }

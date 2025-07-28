@@ -1,4 +1,5 @@
-#include <chrono>  
+#include <chrono>
+#include <cstdlib>  
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -36,14 +37,28 @@ void Server(){
     } else {
         std::cout<< "THREAD SERVER:::> Server is open, sock_fd_: " << server.sock_fd() << std::endl;
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             std::cout << "THREAD SERVER:::> Waiting new message..." << std::endl;
             std::vector<uint8_t> msg = server.WaitingMessage(1024);
             
             if ( !msg.empty() ) {
                 std::cout << "THREAD SERVER:::> Message arrived..." << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                // Adding delay, loss of data or not sending answer
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10 + rand() % (30 + 1)));
+                    
+                    if ( i % 4 == 0 ){
+                        msg.pop_back();
+                    }
+
+                    if ( i == 5 ){
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                        std::cout << "THREAD SERVER:::> Response unsent" << std::endl;
+                        continue;
+                    }
+
                 int send_bytes = server.HandleMessage(msg);
+
                 std::cout << "THREAD SERVER:::> Response sent with " << send_bytes << " bytes." << std::endl;
 
             } else {
@@ -65,9 +80,15 @@ void Client(){
     } else {
         std::cout<< "THREAD CLIENT:::> Client is open, sock_fd_: " << client.sock_fd() << std::endl;
         
-        std::string response = client.Ping("127.0.0.5");
+        std::stringstream response = {};
+        for (int i = 0; i < 10; i++)
+        {
+            std::cout<< "THREAD CLIENT:::> Starting new ping" << std::endl;
+            std::string resp_temp = client.Ping("127.0.0.5", i);
+            response << resp_temp;          
+        }
         
-        std::cout<< "THREAD CLIENT:::> " << std::endl << response;
+        std::cout<< "THREAD CLIENT:::> Ping result" << std::endl << response.str();
     }
 }
 

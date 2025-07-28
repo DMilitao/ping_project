@@ -68,3 +68,19 @@ TEST_F(NClientTest, CanReceiveMessage){
 
     EXPECT_TRUE(expect_client_.Close());
 }
+
+TEST_F(NClientTest, CanPingSomeone){
+    EXPECT_TRUE(expect_client_.Open(ip_address_));
+    std::string ip_address = "127.0.0.1";
+    uint16_t sequence_number = 10;
+    std::stringstream seq_search;
+
+    seq_search << "icmp_seq=" << sequence_number;
+
+    std::string response = expect_client_.Ping(ip_address, sequence_number);
+
+    EXPECT_TRUE(response.find(ip_address) != std::string::npos);
+    EXPECT_TRUE(response.find(seq_search.str()) != std::string::npos);
+
+    EXPECT_TRUE(expect_client_.Close());
+}

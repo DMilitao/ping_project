@@ -12,7 +12,7 @@ bool NSocket::CreateSocket(){
     sock_fd_ = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
     struct timeval tv_recv;
-    tv_recv.tv_sec = 5;
+    tv_recv.tv_sec = 1;
     tv_recv.tv_usec = 0;
     if ( setsockopt(sock_fd_, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_recv, sizeof(tv_recv)) < 0 ) {
         Close();

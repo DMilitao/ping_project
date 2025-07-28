@@ -32,9 +32,26 @@ class MockNClient : public NClient {
                 
                 return msg;
             }));
+
+        EXPECT_CALL(*this, Ping(testing::_, testing::_)).WillRepeatedly(testing::Invoke([](const std::string ip_address, const uint16_t sequence_number) {
+                std::stringstream msg;
+
+                std::vector<uint8_t> data = {1, 2, 3, 4};
+                uint16_t identifier = 0xABCD;
+                EchoRequest expect_echo_request_;
+
+                expect_echo_request_.set_data(data);
+                expect_echo_request_.set_identifier(identifier);
+                expect_echo_request_.set_sequence_number(sequence_number);
+
+                msg << expect_echo_request_.Encode().size() << " bytes from " << ip_address << ": icmp_seq=" << sequence_number << " ttl=64 time=30 ms" << std::endl;
+
+                return msg.str();
+            }));
     }
     MOCK_METHOD(int, Send, (const std::vector<uint8_t> &data, const std::string ip_address), (const, override));
     MOCK_METHOD(std::vector<uint8_t>, WaitingMessage, (const int sbuffer), (const, override));
+    MOCK_METHOD(std::string, Ping, (const std::string ip_address, const uint16_t sequence_number), (const, override));
 };
 
 
