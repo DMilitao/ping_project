@@ -7,8 +7,6 @@ class IcmpTest : public ::testing::Test
 public:
     void SetUp()
     {
-
-
     }
 
 protected:
@@ -25,12 +23,12 @@ protected:
 
 TEST_F(IcmpTest, CanCreateCheckSumByte){
     uint16_t checksum = expect_icmp_.createCheckSum(message_);
-    
+
     EXPECT_FALSE(expect_icmp_.verifyCheckSum(message_));
 
     message_.at(2) = (checksum >> 8) & 0xFF;
     message_.at(3) = (checksum) & 0xFF;
-    
+
     EXPECT_TRUE(expect_icmp_.verifyCheckSum(message_));
 }
 
@@ -39,7 +37,7 @@ TEST_F(IcmpTest, CanVerifyErrorInReceivedMessage){
 
     message_.at(2) = (checksum >> 8) & 0xFF;
     message_.at(3) = (checksum) & 0xFF;
-    
+
     EXPECT_TRUE(expect_icmp_.verifyCheckSum(message_));
 
     message_.at(4) = 0xA1;

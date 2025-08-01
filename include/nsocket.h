@@ -71,14 +71,6 @@ class NSocket
      virtual int Send(const std::vector<uint8_t> &data, const std::string ip_address) const;
 
      /**
-      * \brief Send a message
-      * \param data The message
-      * \param ip_address the ip that should receive the message
-      * \return The number of bytes sent, -1 for error
-      */
-     virtual int Send(const std::vector<uint8_t> &data, const uint32_t p_address) const;
-
-     /**
       * \brief Read a message
       * \param sbuffer The expected size of the message
       * \return The received message

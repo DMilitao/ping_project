@@ -29,7 +29,7 @@ class EchoRequest : public Icmp
       * \brief Decode a message and storage parameters
       * \return The true if message is decoded and false otherwise
       */
-     bool Decode(const std::vector<uint8_t> &buffer) override;
+     bool Decode(const std::vector<uint8_t> &raw_buffer) override;
 
      /**
       * \brief Get message identifier

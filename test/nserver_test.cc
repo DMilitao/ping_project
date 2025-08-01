@@ -5,70 +5,98 @@
 
 #include "include/echo_request.h"
 #include "include/echo_reply.h"
-#include "test/double/mock_nserver.h"
-
+#include "double/mock_nsocket.h"
 class NServerTest : public ::testing::Test
 {
 public:
     void SetUp()
     {
-        std::vector<uint8_t> data = {1, 2, 3, 4};
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
 
         expect_echo_request_.set_data(data);
         expect_echo_request_.set_identifier(identifier);
         expect_echo_request_.set_sequence_number(sequence_number);
-
-        std::vector<uint8_t> message = expect_echo_request_.Encode();
-        message_.reserve(message.size());
-        std::copy(message.begin(), message.end(), std::back_inserter(message_));
     }
 
 protected:
-    MockNServer expect_server_;
-    std::string ip_address_ = "0.0.0.0";
     EchoRequest expect_echo_request_;
+    std::string ip_address_ = "127.0.0.1";
+    std::shared_ptr<MockNSocket> socket_ = std::make_shared<MockNSocket>();
 
-    std::vector<uint8_t> message_ = {};
 };
 
+TEST_F(NServerTest, CanInitializeNewSocket){
+    NServer expect_server_(ip_address_);
 
-TEST_F(NServerTest, CanOpenServer) {
-    EXPECT_TRUE(expect_server_.Open(ip_address_));
     EXPECT_TRUE(expect_server_.isOpen());
 }
 
-TEST_F(NServerTest, CanCloseServer) {
-    EXPECT_TRUE(expect_server_.Open(ip_address_));
-    EXPECT_TRUE(expect_server_.Close());
-    EXPECT_FALSE(expect_server_.isOpen());
+TEST_F(NServerTest, CanInitializeWithSocket) {
+    NServer new_server(ip_address_, socket_);
+
+    EXPECT_TRUE(new_server.isOpen());
 }
 
-TEST_F(NServerTest, CanSendMessage){
+TEST_F(NServerTest, CanReceiveMessage) {
+    NServer new_server(ip_address_, socket_);
 
-    EXPECT_TRUE(expect_server_.Open(ip_address_));
+    EXPECT_TRUE(new_server.isOpen());
+    EXPECT_CALL(*socket_, Receive(testing::_)).WillOnce(testing::Invoke([](const int sbuffer) {
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
-    EXPECT_NE(expect_server_.Send(message_, "127.0.0.1"), -1);
+        uint16_t identifier = 0xABCD;
+        uint16_t sequence_number = 0xCDEF;
+        EchoRequest expect_echo_request_;
 
-    EXPECT_TRUE(expect_server_.Close());
+        expect_echo_request_.set_data(data);
+        expect_echo_request_.set_identifier(identifier);
+        expect_echo_request_.set_sequence_number(sequence_number);
+
+        std::vector<uint8_t> icmp_msg = expect_echo_request_.Encode();
+
+        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
+                                    0xDE, 0xAD, 0x40, 0x00,
+                                    0x40, 0x06, 0x00, 0x00,
+                                    0xC0, 0xA8, 0x01, 0x64,
+                                    0x08, 0x08, 0x08, 0x08};
+        msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
+
+        if (msg.size() > sbuffer){
+            msg.resize(sbuffer);
+        }
+
+        return msg;
+    }));
+
+    std::vector<uint8_t> received_message = new_server.Receive(1024);
+    std::vector<uint8_t> icmp_msg = expect_echo_request_.Encode();
+    std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
+                                 0xDE, 0xAD, 0x40, 0x00,
+                                 0x40, 0x06, 0x00, 0x00,
+                                 0xC0, 0xA8, 0x01, 0x64,
+                                 0x08, 0x08, 0x08, 0x08};
+    msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
+
+    EXPECT_EQ(received_message, msg);
 }
 
-TEST_F(NServerTest, CanReceiveMessage){
-    int sbuffer = 20;
+TEST_F(NServerTest, CanHandleMessage) {
+    NServer new_server(ip_address_, socket_);
 
-    EXPECT_TRUE(expect_server_.Open(ip_address_));
+    EXPECT_TRUE(new_server.isOpen());
+    std::vector<uint8_t> icmp_msg = expect_echo_request_.Encode();
 
-    std::vector<uint8_t> received_message = expect_server_.WaitingMessage(sbuffer);
-    EXPECT_EQ(received_message, message_);
+    std::string ip_from = "192.168.1.100";
+    std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
+                                 0xDE, 0xAD, 0x40, 0x00,
+                                 0x40, 0x06, 0x00, 0x00,
+                                  192,  168,    1,  100,
+                                 0x08, 0x08, 0x08, 0x08};
 
-    EXPECT_TRUE(expect_server_.Close());
-}
+    msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
 
-TEST_F(NServerTest, CanHandleMessage){
-    EXPECT_TRUE(expect_server_.Open(ip_address_));
-
-    EXPECT_NE(expect_server_.HandleMessage(message_), -1);
-
-    EXPECT_TRUE(expect_server_.Close());
+    std::string response = new_server.HandleMessage(msg);
+    EXPECT_THAT(response, testing::HasSubstr(ip_from));
 }

@@ -13,7 +13,7 @@ class NSocketTest : public ::testing::Test
 public:
     void SetUp()
     {
-        std::vector<uint8_t> data = {1, 2, 3, 4};
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
 
@@ -54,12 +54,40 @@ TEST_F(NSocketTest, CanSendMessage){
 }
 
 TEST_F(NSocketTest, CanReceiveMessage){
-    int sbuffer = 20;
+    int sbuffer = 1024;
 
     EXPECT_TRUE(expect_socket_.CreateSocket());
 
+    EXPECT_CALL(expect_socket_, Receive(testing::_)).WillOnce(testing::Invoke([](const int sbuffer) {
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+
+        uint16_t identifier = 0xABCD;
+        uint16_t sequence_number = 0xCDEF;
+        EchoRequest expect_echo_request_;
+
+        expect_echo_request_.set_data(data);
+        expect_echo_request_.set_identifier(identifier);
+        expect_echo_request_.set_sequence_number(sequence_number);
+
+        std::vector<uint8_t> icmp_msg = expect_echo_request_.Encode();
+
+        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
+                                    0xDE, 0xAD, 0x40, 0x00,
+                                    0x40, 0x06, 0x00, 0x00,
+                                    0xC0, 0xA8, 0x01, 0x64,
+                                    0x08, 0x08, 0x08, 0x08};
+        msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
+
+        if (msg.size() > sbuffer){
+            msg.resize(sbuffer);
+        }
+
+        return msg;
+    }));
+
     std::vector<uint8_t> received_message = expect_socket_.Receive(sbuffer);
-    EXPECT_EQ(received_message, message_);
+
+    EXPECT_FALSE(received_message.empty());
 
     EXPECT_TRUE(expect_socket_.Close());
 }

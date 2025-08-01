@@ -1,16 +1,16 @@
-add_executable(main)
+add_executable(client)
 
-target_sources(main
+target_sources(client
                 PRIVATE
                 main.cc
                 )
 
-target_link_libraries(main
+target_link_libraries(client
                       PRIVATE 
                       ping_project
                       )
 
-target_include_directories(main
+target_include_directories(client
                            PRIVATE ${CMAKE_SOURCE_DIR})
 
 install(TARGETS ping_project DESTINATION lib)

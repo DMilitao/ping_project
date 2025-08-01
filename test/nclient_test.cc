@@ -2,9 +2,11 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
 
+#include "include/echo_reply.h"
 #include "include/echo_request.h"
-#include "test/double/mock_nclient.h"
+#include "double/mock_nsocket.h"
 
 class NClientTest : public ::testing::Test
 {
@@ -13,7 +15,7 @@ public:
     {
         uint8_t type = 8;
         uint8_t code = 0;
-        std::vector<uint8_t> data = {1, 2, 3, 4};
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
         uint16_t identifier = 0xABCD;
         uint16_t sequence_number = 0xCDEF;
@@ -30,57 +32,61 @@ public:
     }
 
 protected:
-    MockNClient expect_client_;
-    std::string ip_address_ = "0.0.0.0";
     EchoRequest expect_echo_request_;
-
+    std::shared_ptr<MockNSocket> socket_ = std::make_shared<MockNSocket>();
     std::vector<uint8_t> message_ = {};
 };
 
 
-TEST_F(NClientTest, CanOpenClient) {
-    EXPECT_TRUE(expect_client_.Open(ip_address_));
-    EXPECT_TRUE(expect_client_.isOpen());
+TEST_F(NClientTest, CanInitializeNewSocket) {
+    NClient new_client;
+
+    EXPECT_TRUE(new_client.isOpen());
 }
 
-TEST_F(NClientTest, CanCloseClient) {
-    EXPECT_TRUE(expect_client_.Open(ip_address_));
-    EXPECT_TRUE(expect_client_.Close());
-    EXPECT_FALSE(expect_client_.isOpen());
+TEST_F(NClientTest, CanInitializeWithSocket) {
+    NClient new_client(socket_);
+
+    EXPECT_TRUE(new_client.isOpen());
 }
 
-TEST_F(NClientTest, CanSendMessage){
+TEST_F(NClientTest, CanPingSomeone) {
+    NClient new_client(socket_);
 
-    EXPECT_TRUE(expect_client_.Open(ip_address_));
+    EXPECT_TRUE(new_client.isOpen());
+    EXPECT_CALL(*socket_, Receive(testing::_)).WillOnce(testing::Invoke([](const int sbuffer) {
+        std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
-    EXPECT_NE(expect_client_.Send(message_, "127.0.0.1"), -1);
+        uint16_t identifier = getpid();
+        uint16_t sequence_number = 0;
+        EchoReply expect_echo_reply_;
 
-    EXPECT_TRUE(expect_client_.Close());
-}
+        expect_echo_reply_.set_data(data);
+        expect_echo_reply_.set_identifier(identifier);
+        expect_echo_reply_.set_sequence_number(sequence_number);
 
-TEST_F(NClientTest, CanReceiveMessage){
-    int sbuffer = 20;
+        std::vector<uint8_t> icmp_msg = expect_echo_reply_.Encode();
 
-    EXPECT_TRUE(expect_client_.Open(ip_address_));
+        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
+                                    0xDE, 0xAD, 0x40, 0x00,
+                                    0x40, 0x06, 0x00, 0x00,
+                                    0xC0, 0xA8, 0x01, 0x64,
+                                    0x08, 0x08, 0x08, 0x08};
+        msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
 
-    std::vector<uint8_t> received_message = expect_client_.WaitingMessage(sbuffer);
-    EXPECT_EQ(received_message, message_);
+        if (msg.size() > sbuffer){
+            msg.resize(sbuffer);
+        }
 
-    EXPECT_TRUE(expect_client_.Close());
-}
+        return msg;
+    }));
 
-TEST_F(NClientTest, CanPingSomeone){
-    EXPECT_TRUE(expect_client_.Open(ip_address_));
     std::string ip_address = "127.0.0.1";
-    uint16_t sequence_number = 10;
-    std::stringstream seq_search;
+    uint16_t times = 1;
+    std::stringstream ss;
+    ss << "icmp_seq=" << times-1;
+    std::string response = new_client.Ping(ip_address, times);
 
-    seq_search << "icmp_seq=" << sequence_number;
-
-    std::string response = expect_client_.Ping(ip_address, sequence_number);
-
-    EXPECT_TRUE(response.find(ip_address) != std::string::npos);
-    EXPECT_TRUE(response.find(seq_search.str()) != std::string::npos);
-
-    EXPECT_TRUE(expect_client_.Close());
+    EXPECT_THAT(response, testing::HasSubstr(ip_address));
+    EXPECT_THAT(response, testing::HasSubstr(ss.str()));
 }

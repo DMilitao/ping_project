@@ -5,13 +5,7 @@
 #include <stdint.h>
 
 #include <string>
-#include <sstream>
 #include <vector>
-
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #include "include/nsocket.h"
 
@@ -25,56 +19,42 @@
 class NClient
 {
     public:
+
+     /**
+      * \brief Constructor
+      * \param socket_ptr Pointer to NSocket
+      */
+     NClient(std::shared_ptr<NSocket> socket_ptr = nullptr);
+
+     /**
+      * \brief Destructor
+      */
+     ~NClient();
+
      /**
       * \brief Get Socket descriptor
       * \return Socket descriptor
       */
      virtual int sock_fd() const{
-        return socket_.sock_fd();
+        return socket_->sock_fd();
      }
 
      /**
-      * \brief Start a new client object
-      * \return true if created and false otherwise 
-      */
-     bool Open(const std::string ip_address);
-
-     /**
       * \brief Verify is client is open
-      * \return true if created and false otherwise 
+      * \return true if created and false otherwise
       */
      bool isOpen() const;
 
      /**
-      * \brief Try to disconnect from a server
-      * \return true if closed and false otherwise
-      */
-     bool Close();
-
-     /**
-      * \brief Send a message
-      * \param data The message
-      * \param ip_address The ip that should receive the message
-      * \return The number of bytes sent, -1 for error
-      */
-     virtual int Send(const std::vector<uint8_t> &data, const std::string ip_address) const;
-
-     /**
-      * \brief Read a message
-      * \param sbuffer The expected size of the message
-      * \return The received message
-      */
-     virtual std::vector<uint8_t> WaitingMessage(const int sbuffer) const;
-
-     /**
       * \brief Start a Ping process
       * \param ip_address The desired ip to achieve
+      * \param times The number of echo requests to send
       * \return the log of the process
       */
-     virtual std::string Ping(const std::string ip_address, const uint16_t sequence_number) const;
+     virtual std::string Ping(const std::string ip_address, const int times) const;
 
     private:
-     NSocket socket_;
+     std::shared_ptr<NSocket> socket_;
 };
 
  #endif
@@ -83,15 +63,16 @@ class NClient
 @startuml
 
 class NClient {
-    +Open(const std::string): bool
+    +NClient(std::shared_ptr<NSocket>)
+    +~NClient();
+    +sock_fd() const: int
     +isOpen() const: bool
-    +Close(): bool
-    +Send(const std::vector<uint8_t> &, const std::string) const: int
-    +WaitingMessage(const int) const: bool
-    +Ping(const std::string, const uint16_t) const: std::string
+    +Ping(const std::string, const int) const: std::string
 
-    -socket_: NSocket
+    -socket_: std::shared_ptr<NSocket>
 }
+
+NClient 1-- NSocket
 
 @enduml
 */

@@ -2,8 +2,6 @@
  * \file
  * \brief NServer class definition
  */
-#include <stdint.h>
-
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -19,66 +17,50 @@
 
 class NServer
 {
-    public: 
+    public:
+
+     /**
+      * \brief Constructor
+      * \param ip_address The desired ip address where the server will listen
+      * \param socket_ptr Pointer to NSocket
+      */
+     NServer(const std::string ip_address, std::shared_ptr<NSocket> socket_ptr = nullptr);
+
+     /**
+      * \brief Destructor
+      */
+     ~NServer();
+
      /**
       * \brief Get Socket descriptor
       * \return Socket descriptor
       */
      virtual int sock_fd() const{
-        return socket_.sock_fd();
+        return socket_->sock_fd();
      }
 
      /**
-      * \brief Start the server
-      * \param ip_address The ip address where the server will listen
-      * \return true if created and false otherwise 
-      */
-     bool Open(const std::string ip_address);
-
-     /**
       * \brief Verify is server is started
-      * \return true if created and false otherwise 
+      * \return true if created and false otherwise
       */
      bool isOpen() const;
 
      /**
-      * \brief Close server
-      * \return true if closed and false otherwise
-      */
-      bool Close();
-     
-     /**
-      * \brief Send a message
-      * \param data The message
-      * \param ip_address The ip that should receive the message
-      * \return The number of bytes sent, -1 for error
-      */
-     virtual int Send(const std::vector<uint8_t> &data, const std::string ip_address) const;
-
-     /**
-      * \brief Send a message
-      * \param data The message
-      * \param ip_address The ip that should receive the message
-      * \return The number of bytes sent, -1 for error
-      */
-     virtual int Send(const std::vector<uint8_t> &data, const uint32_t ip_address) const;
-
-     /**
       * \brief Read a message
       * \param sbuffer The expected size of the message
       * \return The received message
       */
-     virtual std::vector<uint8_t> WaitingMessage(const int sbuffer) const;
+     virtual std::vector<uint8_t> Receive(const int sbuffer) const;
 
      /**
-      * \brief Read a message
-      * \param sbuffer The expected size of the message
-      * \return The received message
+      * \brief Handle a received message
+      * \param sbuffer The received message
+      * \return The log of the process
       */
-      virtual int HandleMessage(const std::vector<uint8_t> &msg) const;
+      virtual std::string HandleMessage(const std::vector<uint8_t> &msg) const;
 
     private:
-     NSocket socket_;
+      std::shared_ptr<NSocket> socket_;
 };
 
  #endif
@@ -87,16 +69,17 @@ class NServer
 @startuml
 
 class NServer {
-    +Open(const std::string): bool
+    +NServer(const std::string, std::shared_ptr<NSocket>);
+    +~NServer();
+    +sock_fd() const: int
     +isOpen() const: bool
-    +Close(): bool
-    +Send(const std::vector<uint8_t> &, const std::string) const: int
-    +Send(const std::vector<uint8_t> &, const uint32_t) const: int
-    +WaitingMessage(const int) const: bool
+    +Receive(const int) const: bool
+    +HandleMessage(const std::vector<uint8_t>) const: std::string;
 
-   -socket_: NSocket
-
+   -socket_: std::shared_ptr<NSocket>
 }
+
+NServer 1-- NSocket
 
 @enduml
 */

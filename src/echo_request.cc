@@ -10,9 +10,10 @@
 
 #include "include/icmp.h"
 
-bool EchoRequest::Decode(const std::vector<uint8_t> &buffer){
+bool EchoRequest::Decode(const std::vector<uint8_t> &raw_buffer){
+   std::vector<uint8_t> buffer(raw_buffer.begin()+(4*(raw_buffer.at(0) & 0x0F)),raw_buffer.end());
    std::size_t sbuffer = buffer.size();
-   
+
    set_type(buffer[0]);
    set_code(buffer[1]);
    verifyCheckSum(buffer);
