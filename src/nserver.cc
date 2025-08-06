@@ -46,15 +46,22 @@ std::string NServer::HandleMessage(const std::vector<uint8_t> &msg) const {
     std::string ip_from = ss.str();
     ss.str("");
 
-    EchoRequest echo_test;
-    if ( echo_test.Decode(msg) ) {
-        EchoReply echo_response;
-        echo_response.set_identifier(echo_test.identifier());
-        echo_response.set_sequence_number(echo_test.sequence_number());
-        echo_response.set_data(echo_test.data());
+    EchoRequest new_echo_request;
+    if ( new_echo_request.Decode(msg) ) {
+        EchoReply new_echo_response;
+        new_echo_response.set_identifier(new_echo_request.identifier());
+        new_echo_response.set_sequence_number(new_echo_request.sequence_number());
+        new_echo_response.set_data(new_echo_request.data());
 
-        int bytes_sent = socket_->Send(echo_response.Encode(), ip_from);
-        ss << "EchoRequest received from " << ip_from << ": response sent with " << bytes_sent << " bytes" << std::endl;
+        int bytes_sent = socket_->Send(new_echo_response.Encode(), ip_from);
+
+        if ( bytes_sent != -1 ){
+           ss << "EchoRequest received from " << ip_from << ": reply sent with " << bytes_sent << " bytes" << std::endl;
+        } else {
+           ss << "EchoRequest received from " << ip_from << ": error sending response" << std::endl;
+        }
+    } else {
+        ss << "Unidentified message received from " << ip_from << std::endl;
     }
     return ss.str();
 }

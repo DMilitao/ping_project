@@ -21,7 +21,12 @@ bool set_kernel_icmp_response(bool ignore_echo_requests) {
     return true;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cout << "Parameters are missing " << std::endl;
+        return -1;
+    }
+
     std::cout << "Deactivating temporarily echo reply from kernel..." << std::endl;
 
     if ( !set_kernel_icmp_response(true) ){
@@ -31,7 +36,7 @@ int main() {
 
     std::cout << "Initializing server..." << std::endl;
 
-    NServer server("127.0.0.5");
+    NServer server(argv[1]);
 
     if ( !server.isOpen() ){
         std::cout << "Opening failed" << std::endl;    
@@ -39,7 +44,7 @@ int main() {
     }
     std::cout << "Server Socket: " << server.sock_fd() << std::endl;
 
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < std::stoi(argv[2]); i++) {
         std::cout << "Waiting new message..." << std::endl;
         std::vector<uint8_t> msg = server.Receive(1024);
 
@@ -49,7 +54,7 @@ int main() {
                 if ( i == 6 ){
                     msg.pop_back();
                 } else if ( i == 9 ){
-                    std::cout << "Response unsent" << std::endl;
+                    std::cout << "Reply unsent" << std::endl;
                     continue;
                 }
 
