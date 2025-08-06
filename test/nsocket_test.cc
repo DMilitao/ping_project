@@ -45,6 +45,9 @@ TEST_F(NSocketTest, CanDeleteSocket){
 }
 
 TEST_F(NSocketTest, CanSendMessage){
+    EXPECT_CALL(expect_socket_, Send(testing::A<const std::vector<uint8_t> &>(), testing::_)).WillRepeatedly(testing::Invoke([](const std::vector<uint8_t>& data_arg, const std::string ip) {
+        return (int)data_arg.size();
+    }));
 
     EXPECT_TRUE(expect_socket_.CreateSocket());
 
@@ -71,11 +74,11 @@ TEST_F(NSocketTest, CanReceiveMessage){
 
         std::vector<uint8_t> icmp_msg = expect_echo_request_.Encode();
 
-        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x28,
-                                    0xDE, 0xAD, 0x40, 0x00,
-                                    0x40, 0x06, 0x00, 0x00,
-                                    0xC0, 0xA8, 0x01, 0x64,
-                                    0x08, 0x08, 0x08, 0x08};
+        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x00,
+                                     0x00, 0x00, 0x40, 0x00,
+                                     0x00, 0x00, 0x00, 0x00,
+                                     0xC0, 0xA8, 0x01, 0x64,
+                                     0x08, 0x08, 0x08, 0x08};
         msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
 
         if (msg.size() > sbuffer){
@@ -93,7 +96,7 @@ TEST_F(NSocketTest, CanReceiveMessage){
 }
 
 TEST_F(NSocketTest, CanCreateAddress){
-    std::string ip = "0.0.0.0";
+    std::string ip = "127.0.0.2";
 
     EXPECT_TRUE(expect_socket_.CreateSocket());
 

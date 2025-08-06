@@ -34,7 +34,6 @@ bool NClient::isOpen() const {
         return socket_->sock_fd() != -1;
     }
     return false;
-
 }
 
 std::string NClient::Ping(const std::string ip_address, const int times) const {
@@ -46,6 +45,7 @@ std::string NClient::Ping(const std::string ip_address, const int times) const {
     new_echo_request.set_data({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
 
     std::stringstream ss = {};
+
     for (int i = 0; i < times; i++)
     {
         new_echo_request.set_sequence_number(i);
@@ -61,13 +61,15 @@ std::string NClient::Ping(const std::string ip_address, const int times) const {
                 auto recv_time = std::chrono::high_resolution_clock::now().time_since_epoch();
                 long long elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(recv_time - send_time).count();
 
+                EchoRequest new_echo_request_echo;
                 EchoReply new_echo_reply;
-                if ( new_echo_reply.Decode(msg) ) {
-                    if (new_echo_request == new_echo_reply) {
-                        ss << msg.size() << " bytes from " << ip_address << ": icmp_seq=" << i << " ttl=" << (int)msg.at(8) << " time=" << elapsed_time << " ms" << std::endl;
-                    } else {
-                        ss << "00 bytes from " << ip_address << ": icmp_seq=" << i << " ttl=null"  << " time=Timeout" << std::endl;
-                    }
+                if ( new_echo_request_echo.Decode(msg) && (new_echo_request_echo.checksum() == 0 ) && (new_echo_request_echo == new_echo_request) ) {
+                    //Do nothing, just an echo of the sent message
+                } else if ( new_echo_reply.Decode(msg) && (new_echo_reply.checksum() == 0 ) && ( new_echo_request == new_echo_reply ) ) {
+                    ss << msg.size() << " bytes from " << ip_address << ": icmp_seq=" << i << " ttl=" << (int)msg.at(8) << " time=" << elapsed_time << " ms" << std::endl;
+                    break;
+                } else {
+                    ss << "00 bytes from " << ip_address << ": icmp_seq=" << i << " ttl=null"  << " time=Timeout" << std::endl;
                     break;
                 }
             } else {
