@@ -99,6 +99,9 @@ TEST_F(NClientTest, CanPingSomeone) {
     NClient new_client(socket_);
     EXPECT_TRUE(new_client.isOpen());
 
+    NClient new_client(socket_);
+    EXPECT_TRUE(new_client.isOpen());
+
     std::string ip_address = "127.0.0.1";
     std::stringstream ss;
     ss << "icmp_seq=" << times-1;

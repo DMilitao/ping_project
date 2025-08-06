@@ -52,6 +52,12 @@ std::string NServer::HandleMessage(const std::vector<uint8_t> &msg) const {
         new_echo_response.set_identifier(new_echo_request.identifier());
         new_echo_response.set_sequence_number(new_echo_request.sequence_number());
         new_echo_response.set_data(new_echo_request.data());
+    EchoRequest new_echo_request;
+    if ( new_echo_request.Decode(msg) ) {
+        EchoReply new_echo_response;
+        new_echo_response.set_identifier(new_echo_request.identifier());
+        new_echo_response.set_sequence_number(new_echo_request.sequence_number());
+        new_echo_response.set_data(new_echo_request.data());
 
         int bytes_sent = socket_->Send(new_echo_response.Encode(), ip_from);
 
