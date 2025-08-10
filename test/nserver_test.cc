@@ -58,11 +58,6 @@ TEST_F(NServerTest, CanReceiveMessage) {
                                      0x00, 0x00, 0x00, 0x00,
                                      0xC0, 0xA8, 0x01, 0x64,
                                      0x08, 0x08, 0x08, 0x08};
-        std::vector<uint8_t> msg = { 0x45, 0x00, 0x00, 0x00,
-                                     0x00, 0x00, 0x40, 0x00,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xC0, 0xA8, 0x01, 0x64,
-                                     0x08, 0x08, 0x08, 0x08};
         msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
 
         if (msg.size() > sbuffer){
@@ -71,10 +66,6 @@ TEST_F(NServerTest, CanReceiveMessage) {
 
         return msg;
     }));
-
-    NServer new_server(ip_address_, socket_);
-
-    EXPECT_TRUE(new_server.isOpen());
 
     NServer new_server(ip_address_, socket_);
 
@@ -178,11 +169,6 @@ TEST_F(NServerTest, CannotIdentifyTypeOfMessage) {
     msg.insert(msg.end(),icmp_msg.begin(),icmp_msg.end());
 
     std::string response = new_server.HandleMessage(msg);
-
-    std::stringstream ss;
-    ss << expect_echo_request_.Encode().size() << " bytes";
-
-    EXPECT_THAT(response, testing::HasSubstr("Unidentified message"));
 
     std::stringstream ss;
     ss << expect_echo_request_.Encode().size() << " bytes";
