@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "include/nsocket.h"
+#include "include/nsocket_ipv4.h"
+#include "include/nsocket_ipv6.h"
 
 #ifndef PING_PROJECT_INCLUDE_NSERVER_H_
 #define PING_PROJECT_INCLUDE_NSERVER_H_
@@ -24,7 +26,14 @@ class NServer
       * \param ip_address The desired ip address where the server will listen
       * \param socket_ptr Pointer to NSocket
       */
-     NServer(const std::string ip_address, std::shared_ptr<NSocket> socket_ptr = nullptr);
+     NServer(const std::string ip_address, std::shared_ptr<NSocket> socket_ptr);
+
+     /**
+      * \brief Constructor
+      * \param ip_address The desired ip address where the server will listen
+      * \param version Pointer to NSocket
+      */
+     NServer(const std::string ip_address, std::string version = "ipv4");
 
      /**
       * \brief Destructor
@@ -59,8 +68,17 @@ class NServer
       */
       virtual std::string HandleMessage(const std::vector<uint8_t> &msg) const;
 
+     /**
+      * \brief Get ip for the server
+      * \return The ip of the server
+      */
+     inline std::string ip_server() const {
+        return ip_server_;
+     }
+
     private:
       std::shared_ptr<NSocket> socket_;
+      std::string ip_server_ = "";
 };
 
  #endif

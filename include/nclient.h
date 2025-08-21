@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "include/nsocket.h"
+#include "include/nsocket_ipv4.h"
+#include "include/nsocket_ipv6.h"
 
 #ifndef PING_PROJECT_INCLUDE_NCLIENT_H_
 #define PING_PROJECT_INCLUDE_NCLIENT_H_
@@ -24,8 +26,14 @@ class NClient
       * \brief Constructor
       * \param socket_ptr Pointer to NSocket
       */
-     NClient(std::shared_ptr<NSocket> socket_ptr = nullptr);
-
+     NClient(std::shared_ptr<NSocket> socket_ptr);
+     
+     /**
+      * \brief Constructor
+      * \param version Specify the IP version of the client
+      */
+     NClient(std::string version = "ipv4");
+     
      /**
       * \brief Destructor
       */
@@ -64,6 +72,7 @@ class NClient
 
 class NClient {
     +NClient(std::shared_ptr<NSocket>)
+    +NClient(std::string)
     +~NClient();
     +sock_fd() const: int
     +isOpen() const: bool
