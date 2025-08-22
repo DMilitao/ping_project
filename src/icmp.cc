@@ -5,10 +5,6 @@
 
 #include "include/icmp.h"
 
-#include <stdint.h>
-
-#include <vector>
-
 bool Icmp::Decode(const std::vector<uint8_t> &buffer){
    return false;
 }
@@ -28,11 +24,12 @@ uint16_t Icmp::createCheckSum(const std::vector<uint8_t> &buffer){
       uint16_t op_2 = i + 1 < sbuffer ? buffer.at(i+1) : 0;
 
       checksum +=  op_1 + op_2;
-
-      while ( checksum > 0xFFFF ) {
-         checksum = ( checksum & 0xFFFF ) + ( ( checksum >> 16 ) & 0xFFFF );
-      } 
    }
+
+   while ( checksum > 0xFFFF ) {
+      checksum = ( checksum & 0xFFFF ) + ( ( checksum >> 16 ) & 0xFFFF );
+   }
+
    checksum_ = ~checksum & 0xFFFF;
    return checksum_;
 };

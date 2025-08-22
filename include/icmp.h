@@ -24,6 +24,7 @@ class Icmp
 
      /**
       * \brief Decode a message and storage parameters
+      * \param raw_buffer The received message
       * \return The true if message is decoded and false otherwise
       */
      virtual bool Decode(const std::vector<uint8_t> &raw_buffer);
@@ -117,14 +118,14 @@ class Icmp
       * \param buffer The message
       * \return The 16-bit verification word
       */
-     uint16_t createCheckSum(const std::vector<uint8_t> &buffer);
+     virtual uint16_t createCheckSum(const std::vector<uint8_t> &buffer);
 
      /**
       * \brief Verify that the receveid message is complete by checking the 16-bit verification word
       * \param buffer The received message
       * \return true if the message is complete and false otherwise
       */
-     bool verifyCheckSum(const std::vector<uint8_t> &buffer);
+     virtual bool verifyCheckSum(const std::vector<uint8_t> &buffer);
 
     private:
      uint8_t type_ = UINT8_MAX;        //!< Type of message not initialized in zero
